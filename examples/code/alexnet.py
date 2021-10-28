@@ -62,7 +62,7 @@ def other():
     # dataset-size, 50-width, 40-height, 1-channels
     imgs = np.random.rand(10, 227, 227, 3)
 #   imgs = np.random.rand(10, 10, 10, 1)
-    print(imgs)
+    #print(imgs)
 
     # build the Tensorflow and PyTorch model
     tf_conv_model = TFConv()

@@ -1,10 +1,15 @@
 import subprocess
 import re
+import numpy as np
 import tokenize, io
 import ast
 import astunparse
 import ctypes
 from visitor import Visitor
+from interpreter import Interpreter
+import os
+
+test_cases = {'alexnet': np.random.rand(10, 3, 227, 227)}
 
 class Program:
     def __init__(self, name : str, start : int, end : int) -> None:
@@ -22,6 +27,8 @@ class Program:
         self.fun_def_dict = None
         self.class_def_dict = None
         self.import_dict = None
+        self.input = np.random.rand(10, 3, 227, 227)
+        self.interpreter = Interpreter()
 
     def count_lines(self):
         with open(self.path, 'r') as fp:
@@ -31,6 +38,24 @@ class Program:
 
     def run(self):
         subprocess.run(["python3", self.path])
+
+    def load_example(self):
+        with open(self.path, 'r') as fp:
+            return fp.readlines()        
+
+    def run_benchmark(self):
+        #s_src_lines = self.load_example()
+        #s_program = Benchmark(s_src_lines)
+        #lines = s_program.code 
+        for line in self.lines_under_test: 
+            line = line[line.find("=") + 1:]
+            layer = self.interpreter.create_layer_tf(line)
+            _, output = self.interpreter.tf_forward_pass(layer, self.input)
+            try:
+                print(output.shape)
+            except:
+                print("hi", line)
+                print(output)
 
     def get_lut(self):
         lines = []
@@ -184,3 +209,7 @@ class Program:
             return "EOF reached"
         else:
             return after_block
+
+class Benchmark:
+    def __init__(self, code):
+        self.code = code

@@ -58,6 +58,7 @@ try:
             p.before_and_after()
             print(p.before_block, p.after_block)
             #p.run()
+            p.run_benchmark()
 
 
 
