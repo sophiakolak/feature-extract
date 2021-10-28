@@ -54,7 +54,7 @@ class Program:
             try:
                 print(output.shape)
             except:
-                print("hi", line)
+                print(line)
                 print(output)
 
     def get_lut(self):
