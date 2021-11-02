@@ -19,7 +19,9 @@ class Program:
         self.num_lines = None
         self.lines_under_test = None
         self.before_block = None
+        self.before_line = None
         self.after_block = None
+        self.after_line = None
         self.path = "examples/code/"+self.name
         self.comment_dict = None
         self.whitespace = None
@@ -27,6 +29,8 @@ class Program:
         self.fun_def_dict = None
         self.class_def_dict = None
         self.import_dict = None
+        self.input_shape = None
+        self.output_shape = None
         self.input = np.random.rand(10, 3, 227, 227)
         self.interpreter = Interpreter()
 
@@ -41,21 +45,40 @@ class Program:
 
     def load_example(self):
         with open(self.path, 'r') as fp:
-            return fp.readlines()        
+            return fp.readlines()   
+
+    def run_bench_before(self):
+        line = self.before_block
+        start = self.before_line
+        line = line[line.find("=") + 1:]
+        layer = self.interpreter.create_layer_tf(line)
+        _, output = self.interpreter.tf_forward_pass(layer, self.input)
+        self.input_shape = output.shape
+        try:
+            print("#### LINE BEFORE BLOCK = ", start)
+            print("    API call = ", line.rstrip())
+            print("    Output shape = ", output.shape)
+            print("####\n")
+        except:
+            print(line)
+            print(output)
 
     def run_benchmark(self):
-        #s_src_lines = self.load_example()
-        #s_program = Benchmark(s_src_lines)
-        #lines = s_program.code 
+        start = self.start
         for line in self.lines_under_test: 
             line = line[line.find("=") + 1:]
             layer = self.interpreter.create_layer_tf(line)
             _, output = self.interpreter.tf_forward_pass(layer, self.input)
             try:
-                print(output.shape)
+                print("#", start)
+                print("    API call = ", line.rstrip())
+                print("    Output shape = ", output.shape)
             except:
                 print(line)
                 print(output)
+            start += 1
+        self.output_shape = output.shape
+        print("\n")
 
     def get_lut(self):
         lines = []
@@ -66,6 +89,15 @@ class Program:
                     lines.append(line)
                 count += 1
         self.lines_under_test = lines
+
+    def pretty_print(self):
+        lines = self.lines_under_test
+        start_line = self.start
+        print("\n#### Lines under Test ####\n")
+        for line in lines:
+            print(start_line, "    ", line.lstrip().rstrip())
+            start_line += 1
+        print("\n")
 
     def extract_comments(self):
         normal_comments, single_quote_comments, double_quote_comments = [],[],[]
@@ -188,6 +220,7 @@ class Program:
                 and begin not in self.fun_def_dict and begin not in self.class_def_dict \
                 and begin not in self.import_dict:
                 before_block = lines[self.start-offset]
+                self.before_line = self.start-offset
                 break
             offset+=1
         if before_block is None:
@@ -209,7 +242,3 @@ class Program:
             return "EOF reached"
         else:
             return after_block
-
-class Benchmark:
-    def __init__(self, code):
-        self.code = code

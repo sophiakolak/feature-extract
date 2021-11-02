@@ -38,17 +38,17 @@ try:
                 print("start line bust be less than end line"), exit()
 
             #if you reach here, the input is well formatted
-            print("extracting features for lines", input_lines[0], "through", input_lines[1])
+            print("\n#### Extracting features for lines", input_lines[0], "through", input_lines[1], "###\n")
 
             #default, run on alexnet.py (change this later)
             start, end = int(input_lines[0]), int(input_lines[1])
             p = Program("alexnet.py", start, end)
-            print(p.name)
+            print("    Program = ", p.name)
             p.count_lines()
             if p.end > p.num_lines:
                 print("given end line exceeds program length"), exit()
             p.get_lut()
-            print(p.lines_under_test)
+            p.pretty_print()
             p.extract_comments()
             p.comment_dict_make()
             p.whitespace_lines()
@@ -56,9 +56,14 @@ try:
             p.class_def_dict_make()
             p.import_dict_make()
             p.before_and_after()
-            print(p.before_block, p.after_block)
+            print("#### First API call before block = \n", p.before_block.rstrip(), "\n")
+            print("#### First API call after block = \n", p.after_block.rstrip(), "\n")
             #p.run()
+            p.run_bench_before()
             p.run_benchmark()
+            print("#### Shape before block = ", p.input_shape)
+            print("#### Shape after block = ", p.output_shape)
+            
 
 
 
